@@ -1,34 +1,50 @@
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Layout from './layouts/Layout.tsx';
-import GoogleMap from './components/Map.tsx';
+import { GoogleMap } from './components/Map.tsx';
 import Sidebar from './components/Sidebar.tsx';
-import { useEffect, useState } from 'react';
 
 export default function App() {
   const defaultRadius = 25;
 
+  // The input state that updates with keystrokes
   const [homeLocation, setHomeLocation] = useState<string>('Swindon');
-  const [maxRadius, setMaxRadius] = useState<string>(defaultRadius.toString());
-  const [homeCoordinates, setHomeCoordinates] =
-    useState<google.maps.LatLngLiteral | null>(null);
 
-  const handleHomeLocationChange = (e: React.FormEvent<HTMLFormElement>) => {
+  // The submitted location when the form is submitted
+  const [submittedLocation, setSubmittedLocation] = useState<string>('Swindon');
+
+  // maxRadius updates independently and does not update when the form is submitted
+  const [maxRadius, setMaxRadius] = useState<string>(defaultRadius.toString());
+
+  const [coordinates, setCoordinates] = useState<google.maps.LatLngLiteral>({
+    lat: 0,
+    lng: 0,
+  });
+
+  const handleSettingsChange = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
 
-    // Convert the location to coordinates
     const geocoder = new google.maps.Geocoder();
+
     geocoder.geocode({ address: homeLocation }, (results, status) => {
       if (status === 'OK' && results && results.length > 0) {
         const location = results[0].geometry.location;
-        setHomeCoordinates({ lat: location.lat(), lng: location.lng() });
+        setCoordinates({ lat: location.lat(), lng: location.lng() });
+        console.log(location, coordinates);
       } else {
-        setHomeCoordinates(null);
+        throw new Error('Location not found');
       }
     });
+
+    setSubmittedLocation(homeLocation);
   };
 
   useEffect(() => {
-    console.log(homeCoordinates); // Logs the updated state
-  }, [homeCoordinates]);
+    // Check if maxRadius is a valid number then update the state
+    const parsedMaxRadius = parseInt(maxRadius, 10);
+    if (!isNaN(parsedMaxRadius)) {
+      setMaxRadius(parsedMaxRadius.toString());
+    }
+  }, [maxRadius]);
 
   return (
     <Layout>
@@ -38,9 +54,12 @@ export default function App() {
         maxRadius={maxRadius}
         setMaxRadius={setMaxRadius}
         defaultRadius={defaultRadius}
-        handleHomeLocationChange={handleHomeLocationChange}
+        handleSettingsChange={handleSettingsChange}
       />
-      <GoogleMap homeCoordinates={homeCoordinates} />
+      <GoogleMap
+        homeCoordinates={coordinates}
+        maxRadius={maxRadius}
+      />
     </Layout>
   );
 }

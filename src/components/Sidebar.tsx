@@ -19,7 +19,7 @@ export interface SidebarProps {
   maxRadius: string;
   setMaxRadius: (maxRadius: string) => void;
   defaultRadius: number;
-  handleHomeLocationChange: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleSettingsChange: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 export default function Sidebar({
   homeLocation,
@@ -27,10 +27,14 @@ export default function Sidebar({
   maxRadius,
   setMaxRadius,
   defaultRadius,
-  handleHomeLocationChange,
+  handleSettingsChange,
 }: SidebarProps) {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setHomeLocation(event.target.value);
+    if (event.target.id === 'homeLocation') {
+      setHomeLocation(event.target.value);
+    } else if (event.target.id === 'maxRadius') {
+      setMaxRadius(event.target.value);
+    }
   };
 
   return (
@@ -40,7 +44,7 @@ export default function Sidebar({
       </CSidebarHeader>
       <CSidebarNav>
         <CNavItem>
-          <CForm onSubmit={handleHomeLocationChange}>
+          <CForm onSubmit={handleSettingsChange}>
             <CCol xs='auto'>
               <CFormInput
                 type='text'
@@ -53,7 +57,7 @@ export default function Sidebar({
               <CFormRange
                 id='maxRadius'
                 value={maxRadius}
-                onChange={(e) => setMaxRadius(e.target.value)}
+                onChange={handleInputChange}
                 label={`Maximum Radius: ${maxRadius || defaultRadius} miles`}
                 min={0}
                 max={500}
