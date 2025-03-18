@@ -9,6 +9,7 @@ import {
   defaultLocation,
 } from './utils/defaults.ts';
 // import { checkIfWithinRadius } from './utils/functions.ts';
+import { fetchDistance } from './utils/calculateDistance.ts';
 
 // Google Maps API key
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -118,6 +119,26 @@ export default function App() {
             lat: coordinates.lat(),
             lng: coordinates.lng(),
           });
+
+          const distance = await fetchDistance(
+            {
+              location: {
+                latLng: {
+                  latitude: coordinates.lat(),
+                  longitude: coordinates.lng(),
+                },
+              },
+            },
+            {
+              location: {
+                latLng: {
+                  latitude: coordinates.lat(),
+                  longitude: coordinates.lng(),
+                },
+              },
+            }
+          );
+          console.log(distance);
         } else {
           throw new Error('Geocoding failed');
         }
