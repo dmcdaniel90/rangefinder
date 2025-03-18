@@ -31,8 +31,11 @@ export default function App() {
   const [geoCodingLibrary, setGeoCodingLibrary] =
     useState<google.maps.GeocodingLibrary | null>();
 
-  // The curret location
+  // The current location
   const [location, setLocation] = useState<string>(defaultLocation);
+
+  // The requsted destination
+  const [destination, setDestination] = useState<string>('');
 
   // maxRadius updates independently and does not update when the form is submitted
   const [maxRadius, setMaxRadius] = useState<string>(defaultRadius.toString());
@@ -40,6 +43,10 @@ export default function App() {
   // The coordinates of the location
   const [coordinates, setCoordinates] =
     useState<google.maps.LatLngLiteral>(defaultCoordinates);
+
+  // The coordinates of the destination
+  const [destinationCoordinates, setDestinationCoordinates] =
+    useState<google.maps.LatLngLiteral | null>(null);
 
   // Load the geocoding library on first render
   useEffect(() => {
@@ -57,13 +64,12 @@ export default function App() {
    * @param e The form event.
    */
 
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSetLocation = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const address = location;
 
     if (address && geoCodingLibrary) {
-      console.log('its working');
       const geocoder = new geoCodingLibrary.Geocoder();
       try {
         const results = await geocoder.geocode({ address });
@@ -73,7 +79,28 @@ export default function App() {
             lat: coordinates.lat(),
             lng: coordinates.lng(),
           });
-          console.log(coordinates);
+        } else {
+          throw new Error('Geocoding failed');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const handleSetDestination = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const address = destination;
+    if (address && geoCodingLibrary) {
+      const geocoder = new geoCodingLibrary.Geocoder();
+      try {
+        const results = await geocoder.geocode({ address });
+        if (results) {
+          const coordinates = results.results[0].geometry.location;
+          setDestinationCoordinates({
+            lat: coordinates.lat(),
+            lng: coordinates.lng(),
+          });
         } else {
           throw new Error('Geocoding failed');
         }
@@ -93,9 +120,11 @@ export default function App() {
           <Sidebar
             location={location}
             setLocation={setLocation}
+            setDestination={setDestination}
             maxRadius={maxRadius}
             setMaxRadius={setMaxRadius}
-            handleFormSubmit={handleFormSubmit}
+            handleSetLocation={handleSetLocation}
+            handleSetDestination={handleSetDestination}
           />
           <GoogleMap
             homeCoordinates={coordinates}
