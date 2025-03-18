@@ -12,7 +12,11 @@ import {
   CCol,
   CFormRange,
 } from '@coreui/react';
-import { defaultRadius, defaultLocation } from '../utils/defaults.ts';
+import {
+  defaultRadius,
+  defaultLocation,
+  defaultDestination,
+} from '../utils/defaults.ts';
 
 export interface SidebarProps {
   location: string;
@@ -31,6 +35,7 @@ export default function Sidebar({
   handleSetLocation,
   handleSetDestination,
 }: SidebarProps) {
+  //const [radiusStepFidelity]
   const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMaxRadius(event.target.value);
   };
@@ -82,6 +87,20 @@ export default function Sidebar({
               max={500}
               step={5}
             />
+            <CCol className='d-flex flex-row justify-content-between gap-2'>
+              <CButton
+                color='primary'
+                size='sm'
+                style={{ width: '50%' }}>
+                Coarse
+              </CButton>
+              <CButton
+                color='primary'
+                size='sm'
+                style={{ width: '50%' }}>
+                Fine
+              </CButton>
+            </CCol>
           </CCol>
           <CForm
             className='pt-4 border-top border-3'
@@ -93,6 +112,7 @@ export default function Sidebar({
                 floatingClassName='mb-3'
                 floatingLabel='Enter Destination'
                 onChange={handleInputChange}
+                defaultValue={defaultDestination}
               />
               <CButton
                 color='primary'

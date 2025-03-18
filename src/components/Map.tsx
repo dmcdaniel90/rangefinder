@@ -1,11 +1,12 @@
 import { Map, Marker } from '@vis.gl/react-google-maps';
 
 import { Circle } from './Circle';
-import convertMilesToMeters from '../utils/convertMilesToMeters';
+import convertMilesToMeters from '../utils/functions';
 
 interface GoogleMapProps {
   homeCoordinates: google.maps.LatLngLiteral | null;
-  maxRadius: string;
+  destinationCoordinates: google.maps.LatLngLiteral | null;
+  maxRadiusInMiles: string;
 }
 
 const radiusOptions = {
@@ -21,8 +22,12 @@ const radiusOptions = {
   zIndex: 1,
 };
 
-export const GoogleMap = ({ homeCoordinates, maxRadius }: GoogleMapProps) => {
-  const radiusInMeters = convertMilesToMeters(maxRadius);
+export const GoogleMap = ({
+  homeCoordinates,
+  destinationCoordinates,
+  maxRadiusInMiles,
+}: GoogleMapProps) => {
+  const radiusInMeters = convertMilesToMeters(maxRadiusInMiles);
 
   return (
     <Map
@@ -42,6 +47,12 @@ export const GoogleMap = ({ homeCoordinates, maxRadius }: GoogleMapProps) => {
           center={homeCoordinates}
           radius={radiusInMeters}
           {...radiusOptions}
+        />
+      )}
+      {destinationCoordinates && (
+        <Marker
+          position={destinationCoordinates}
+          draggable={false}
         />
       )}
     </Map>

@@ -8,6 +8,7 @@ import {
   defaultCoordinates,
   defaultLocation,
 } from './utils/defaults.ts';
+// import { checkIfWithinRadius } from './utils/functions.ts';
 
 // Google Maps API key
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -37,8 +38,12 @@ export default function App() {
   // The requsted destination
   const [destination, setDestination] = useState<string>('');
 
-  // maxRadius updates independently and does not update when the form is submitted
-  const [maxRadius, setMaxRadius] = useState<string>(defaultRadius.toString());
+  // maxRadiusInMiles updates independently and does not update when the form is submitted
+  const [maxRadiusInMiles, setMaxRadiusInMiles] = useState<string>(
+    defaultRadius.toString()
+  );
+
+  // const [inRadius, setInRadius] = useState<boolean>(false);
 
   // The coordinates of the location
   const [coordinates, setCoordinates] =
@@ -54,6 +59,18 @@ export default function App() {
       setGeoCodingLibrary(lib);
     });
   }, []);
+
+  // useEffect(() => {
+  //   if (geoCodingLibrary) {
+  //     const isWithinRadius = checkIfWithinRadius(
+  //       coordinates,
+  //       destinationCoordinates,
+  //       parseInt(maxRadiusInMiles)
+  //     );
+
+  //     setInRadius(isWithinRadius);
+  //   }
+  // }, []);
 
   /**
    * Called when the user submits the form.
@@ -121,14 +138,15 @@ export default function App() {
             location={location}
             setLocation={setLocation}
             setDestination={setDestination}
-            maxRadius={maxRadius}
-            setMaxRadius={setMaxRadius}
+            maxRadius={maxRadiusInMiles}
+            setMaxRadius={setMaxRadiusInMiles}
             handleSetLocation={handleSetLocation}
             handleSetDestination={handleSetDestination}
           />
           <GoogleMap
             homeCoordinates={coordinates}
-            maxRadius={maxRadius}
+            destinationCoordinates={destinationCoordinates}
+            maxRadiusInMiles={maxRadiusInMiles}
           />
         </Layout>
       )}

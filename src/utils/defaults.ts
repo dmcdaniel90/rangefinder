@@ -9,3 +9,6 @@ export const defaultCoordinates: google.maps.LatLngLiteral = {
 
 // Default location
 export const defaultLocation: string = 'London, UK';
+
+// Default destination
+export const defaultDestination: string = '';
