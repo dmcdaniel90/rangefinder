@@ -9,15 +9,6 @@ export interface Waypoint {
   };
 }
 
-// interface GooglePlacesResponse {
-//   // The routes array.
-//   routes: [
-//     {
-//       distanceMeters: number;
-//     }
-//   ];
-// }
-
 const baseUrl = 'https://routes.googleapis.com/directions/v2:computeRoutes';
 
 export const fetchDistance = async (
