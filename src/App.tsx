@@ -9,7 +9,8 @@ import {
   defaultLocation,
 } from './utils/defaults.ts';
 // import { checkIfWithinRadius } from './utils/functions.ts';
-import { fetchDistance } from './utils/calculateDistance.ts';
+import { fetchDistance } from './utils/fetchDistance.ts';
+import { checkIfWithinRadius } from './utils/functions.ts';
 
 // Google Maps API key
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -33,6 +34,7 @@ export default function App() {
   const [geoCodingLibrary, setGeoCodingLibrary] =
     useState<google.maps.GeocodingLibrary | null>();
 
+
   // The current location
   const [location, setLocation] = useState<string>(defaultLocation);
 
@@ -44,10 +46,13 @@ export default function App() {
     defaultRadius.toString()
   );
 
-  // const [inRadius, setInRadius] = useState<boolean>(false);
+  // The distance between the home and destination
+  const [distanceInMeters, setDistanceInMeters] = useState<number | null>(null);
+
+  const [destinationInRadius, setDestinationInRadius] = useState<boolean>(false);
 
   // The coordinates of the location
-  const [coordinates, setCoordinates] =
+  const [homeCoordinates, setHomeCoordinates] =
     useState<google.maps.LatLngLiteral>(defaultCoordinates);
 
   // The coordinates of the destination
@@ -61,20 +66,8 @@ export default function App() {
     });
   }, []);
 
-  // useEffect(() => {
-  //   if (geoCodingLibrary) {
-  //     const isWithinRadius = checkIfWithinRadius(
-  //       coordinates,
-  //       destinationCoordinates,
-  //       parseInt(maxRadiusInMiles)
-  //     );
-
-  //     setInRadius(isWithinRadius);
-  //   }
-  // }, []);
-
   /**
-   * Called when the user submits the form.
+   * Called when the user submits the location form.
    * Prevents the default form submission and instead geocodes the
    * location. If the geocoding is successful, it updates the
    * coordinates state with the geocoded location's coordinates.
@@ -92,10 +85,10 @@ export default function App() {
       try {
         const results = await geocoder.geocode({ address });
         if (results) {
-          const coordinates = results.results[0].geometry.location;
-          setCoordinates({
-            lat: coordinates.lat(),
-            lng: coordinates.lng(),
+          const calculatedHomeCoordinates = results.results[0].geometry.location;
+          setHomeCoordinates({
+            lat: calculatedHomeCoordinates.lat(),
+            lng: calculatedHomeCoordinates.lng(),
           });
         } else {
           throw new Error('Geocoding failed');
@@ -106,6 +99,14 @@ export default function App() {
     }
   };
 
+  /**
+   * Called when the user submits the destination form.
+   * Prevents the default form submission and instead geocodes the
+   * destination. If the geocoding is successful, it updates the
+   * destination coordinates state with the geocoded location's coordinates.
+   * If the geocoding fails, it throws an exception.
+   * @param e The form event.
+   */
   const handleSetDestination = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const address = destination;
@@ -114,39 +115,62 @@ export default function App() {
       try {
         const results = await geocoder.geocode({ address });
         if (results) {
-          const coordinates = results.results[0].geometry.location;
+          const calculatedDestinationCoordinates = results.results[0].geometry.location;
           setDestinationCoordinates({
-            lat: coordinates.lat(),
-            lng: coordinates.lng(),
+            lat: calculatedDestinationCoordinates.lat(),
+            lng: calculatedDestinationCoordinates.lng(),
           });
 
-          const distance = await fetchDistance(
-            {
-              location: {
-                latLng: {
-                  latitude: coordinates.lat(),
-                  longitude: coordinates.lng(),
-                },
-              },
-            },
-            {
-              location: {
-                latLng: {
-                  latitude: coordinates.lat(),
-                  longitude: coordinates.lng(),
-                },
-              },
-            }
-          );
-          console.log(distance);
-        } else {
-          throw new Error('Geocoding failed');
+          //! See functions.ts for the implementation of the following functions
+          // // Fetch the distance between the home and destination from the Routes API
+          // if (homeCoordinates && calculatedDestinationCoordinates) {
+          //   const distance = await fetchDistance(
+          //     {
+          //       location: {
+          //         latLng: {
+          //           latitude: homeCoordinates.lat,
+          //           longitude: homeCoordinates.lng,
+          //         },
+          //       },
+          //     },
+          //     {
+          //       location: {
+          //         latLng: {
+          //           latitude: calculatedDestinationCoordinates.lat(),
+          //           longitude: calculatedDestinationCoordinates.lng(),
+          //         },
+          //       },
+          //     }
+          //   );
+
+          // } else {
+          //   throw new Error('Geocoding failed');
+          // }
         }
       } catch (error) {
         console.error(error);
       }
     }
   };
+
+  //? Figure out how to check if the destination is within the radius
+  // useEffect(() => {
+  //   if (geoCodingLibrary && distanceInMeters) {
+  //     const isWithinRadius = checkIfWithinRadius(
+  //       distanceInMeters,
+  //       parseInt(maxRadiusInMiles)
+  //     );
+
+  //     setDestinationInRadius(isWithinRadius);
+  //   }
+  // }, [distanceInMeters]);
+
+
+
+  //^ Log if the destination is within the radius
+  // useEffect(() => {
+  //   console.log(`Destination ${destination} is in radius from ${location}? : ${destinationInRadius}`);
+  // }, [destinationInRadius]);
 
   return (
     <APIProvider
@@ -165,7 +189,7 @@ export default function App() {
             handleSetDestination={handleSetDestination}
           />
           <GoogleMap
-            homeCoordinates={coordinates}
+            homeCoordinates={homeCoordinates}
             destinationCoordinates={destinationCoordinates}
             maxRadiusInMiles={maxRadiusInMiles}
           />

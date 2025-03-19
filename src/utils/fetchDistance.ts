@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-interface Waypoint {
+export interface Waypoint {
   location: {
     latLng: {
       latitude: number;
@@ -50,5 +50,5 @@ export const fetchDistance = async (
     .catch((error) => {
       console.error(error);
     });
-  return response;
+  return response.routes[0].distanceMeters;
 };
