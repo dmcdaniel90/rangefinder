@@ -9,8 +9,7 @@ import {
   defaultLocation,
 } from './utils/defaults.ts';
 // import { checkIfWithinRadius } from './utils/functions.ts';
-import { fetchDistance } from './utils/fetchDistance.ts';
-import { checkIfWithinRadius } from './utils/functions.ts';
+import { calculateDistance, checkIfWithinRadius } from './utils/functions.ts';
 
 // Google Maps API key
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -120,38 +119,20 @@ export default function App() {
             lat: calculatedDestinationCoordinates.lat(),
             lng: calculatedDestinationCoordinates.lng(),
           });
-
-          //! See functions.ts for the implementation of the following functions
-          // // Fetch the distance between the home and destination from the Routes API
-          // if (homeCoordinates && calculatedDestinationCoordinates) {
-          //   const distance = await fetchDistance(
-          //     {
-          //       location: {
-          //         latLng: {
-          //           latitude: homeCoordinates.lat,
-          //           longitude: homeCoordinates.lng,
-          //         },
-          //       },
-          //     },
-          //     {
-          //       location: {
-          //         latLng: {
-          //           latitude: calculatedDestinationCoordinates.lat(),
-          //           longitude: calculatedDestinationCoordinates.lng(),
-          //         },
-          //       },
-          //     }
-          //   );
-
-          // } else {
-          //   throw new Error('Geocoding failed');
-          // }
         }
       } catch (error) {
         console.error(error);
       }
     }
   };
+
+  const handleRecalculate = async () => {
+    const distance = await calculateDistance(homeCoordinates, destinationCoordinates!);
+    distance && setDistanceInMeters(distance);
+
+    const isWithinRadius = distance && checkIfWithinRadius(distance, parseInt(maxRadiusInMiles));
+    isWithinRadius && setDestinationInRadius(isWithinRadius);
+  }
 
   //? Figure out how to check if the destination is within the radius
   // useEffect(() => {
@@ -165,12 +146,25 @@ export default function App() {
   //   }
   // }, [distanceInMeters]);
 
+  //* Callback function for the max radius input
+  const handleMaxRadiusChange = () => {
+    handleRecalculate();
+  };
+
+  useEffect(() => {
+    handleRecalculate();
+  }, [homeCoordinates, destinationCoordinates]);
+
+  useEffect(() => {
+    handleMaxRadiusChange();
+  }, [maxRadiusInMiles]);
+
 
 
   //^ Log if the destination is within the radius
-  // useEffect(() => {
-  //   console.log(`Destination ${destination} is in radius from ${location}? : ${destinationInRadius}`);
-  // }, [destinationInRadius]);
+  useEffect(() => {
+    console.log(`Destination ${destination} is in radius from ${location}? : ${destinationInRadius}`);
+  }, [distanceInMeters]);
 
   return (
     <APIProvider
@@ -180,13 +174,14 @@ export default function App() {
       {!apiLoading && (
         <Layout>
           <Sidebar
-            location={location}
+            destination={destination}
             setLocation={setLocation}
             setDestination={setDestination}
             maxRadius={maxRadiusInMiles}
             setMaxRadius={setMaxRadiusInMiles}
             handleSetLocation={handleSetLocation}
             handleSetDestination={handleSetDestination}
+            handleMaxRadiusChange={handleMaxRadiusChange}
           />
           <GoogleMap
             homeCoordinates={homeCoordinates}

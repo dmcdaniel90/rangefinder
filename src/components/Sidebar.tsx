@@ -19,28 +19,36 @@ import {
 } from '../utils/defaults.ts';
 
 export interface SidebarProps {
-  location: string;
+  destination: string;
   setLocation: (location: string) => void;
   setDestination: (destination: string) => void;
   maxRadius: string;
   setMaxRadius: (maxRadius: string) => void;
   handleSetLocation: (e: React.FormEvent<HTMLFormElement>) => void;
   handleSetDestination: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleMaxRadiusChange: () => void;
 }
 export default function Sidebar({
+  destination,
   setLocation,
   setDestination,
   maxRadius,
   setMaxRadius,
   handleSetLocation,
   handleSetDestination,
+  handleMaxRadiusChange,
 }: SidebarProps) {
   //const [radiusStepFidelity]
+
+  const submitRangeForm = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    handleMaxRadiusChange();
+  }
   const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMaxRadius(event.target.value);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLocationOrDestinationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.id === 'location') {
       setLocation(event.target.value);
     } else if (event.target.id === 'destination') {
@@ -67,7 +75,7 @@ export default function Sidebar({
                 floatingClassName='mb-3'
                 floatingLabel='Enter Location'
                 defaultValue={defaultLocation}
-                onChange={handleInputChange}
+                onChange={handleLocationOrDestinationChange}
               />
               <CButton
                 color='primary'
@@ -78,29 +86,42 @@ export default function Sidebar({
             </CCol>
           </CForm>
           <CCol className='py-4 border-top border-3'>
-            <CFormRange
-              id='maxRadius'
-              value={maxRadius}
-              onChange={handleRangeChange}
-              label={`Maximum Radius: ${maxRadius || defaultRadius} miles`}
-              min={0}
-              max={500}
-              step={5}
-            />
-            <CCol className='d-flex flex-row justify-content-between gap-2'>
-              <CButton
-                color='primary'
-                size='sm'
-                style={{ width: '50%' }}>
-                Coarse
-              </CButton>
-              <CButton
-                color='primary'
-                size='sm'
-                style={{ width: '50%' }}>
-                Fine
-              </CButton>
-            </CCol>
+            <CForm
+              onSubmit={submitRangeForm}
+            >
+              <CFormRange
+                id='maxRadius'
+                value={maxRadius}
+                onChange={handleRangeChange}
+                label={`Maximum Radius: ${maxRadius || defaultRadius} miles`}
+                min={0}
+                max={500}
+                step={5}
+              />
+              <CCol className='d-flex flex-row justify-content-between gap-2'>
+                <CButton
+                  color='primary'
+                  size='sm'
+                  style={{ width: '50%' }}>
+                  Coarse
+                </CButton>
+                <CButton
+                  color='primary'
+                  size='sm'
+                  style={{ width: '50%' }}>
+                  Fine
+                </CButton>
+              </CCol>
+              <CCol>
+                <CButton
+                  color='primary'
+                  type='button'
+                  className='w-100'
+                  onClick={handleMaxRadiusChange}>
+                  Set Radius
+                </CButton>
+              </CCol>
+            </CForm>
           </CCol>
           <CForm
             className='pt-4 border-top border-3'
@@ -111,17 +132,29 @@ export default function Sidebar({
                 id='destination'
                 floatingClassName='mb-3'
                 floatingLabel='Enter Destination'
-                onChange={handleInputChange}
+                onChange={handleLocationOrDestinationChange}
                 defaultValue={defaultDestination}
               />
               <CButton
                 color='primary'
                 type='submit'
-                className='w-100 mb-4'>
+                className='w-100 mb-4'
+              >
                 Set Destination
               </CButton>
             </CCol>
           </CForm>
+          {/* <CCol xs="auto">
+            <CButton
+              color="secondary"
+              type='button'
+              className='w-100'
+              disabled={!location || !destination}
+              onClick={handleRecalulate}
+            >
+              Recalculate
+            </CButton>
+          </CCol> */}
         </CNavItem>
       </CSidebarNav>
       <CSidebarHeader className='border-top'>
