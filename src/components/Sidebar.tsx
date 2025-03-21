@@ -5,7 +5,6 @@ import {
   CSidebarBrand,
   CSidebarHeader,
   CSidebarNav,
-  CSidebarToggler,
   CNavItem,
   CFormInput,
   CForm,
@@ -17,44 +16,27 @@ import {
   defaultLocation,
   defaultDestination,
 } from '../utils/defaults.ts';
+import useHomeForm from '../hooks/useHomeForm.tsx';
+import useDestinationForm from '../hooks/useDestinationForm.tsx';
 
 export interface SidebarProps {
-  destination: string;
-  setLocation: (location: string) => void;
-  setDestination: (destination: string) => void;
-  maxRadius: string;
-  setMaxRadius: (maxRadius: string) => void;
-  handleSetLocation: (e: React.FormEvent<HTMLFormElement>) => void;
-  handleSetDestination: (e: React.FormEvent<HTMLFormElement>) => void;
-  handleMaxRadiusChange: () => void;
+  radius: number;
+  handleSetRadius: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSetHomeCoordinates: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleSetDestinationCoordinates: (e: React.FormEvent<HTMLFormElement>) => void;
+  distanceInMeters: number | null;
+  homeForm: ReturnType<typeof useHomeForm>['homeForm'];
+  destinationForm: ReturnType<typeof useDestinationForm>['destinationForm'];
 }
 export default function Sidebar({
-  destination,
-  setLocation,
-  setDestination,
-  maxRadius,
-  setMaxRadius,
-  handleSetLocation,
-  handleSetDestination,
-  handleMaxRadiusChange,
+  radius,
+  handleSetRadius,
+  handleSetHomeCoordinates,
+  handleSetDestinationCoordinates,
+  homeForm,
+  destinationForm,
 }: SidebarProps) {
   //const [radiusStepFidelity]
-
-  const submitRangeForm = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    handleMaxRadiusChange();
-  }
-  const handleRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMaxRadius(event.target.value);
-  };
-
-  const handleLocationOrDestinationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.id === 'location') {
-      setLocation(event.target.value);
-    } else if (event.target.id === 'destination') {
-      setDestination(event.target.value);
-    }
-  };
 
   return (
     <CSidebar className='border-end'>
@@ -67,15 +49,14 @@ export default function Sidebar({
       </CSidebarHeader>
       <CSidebarNav>
         <CNavItem>
-          <CForm onSubmit={handleSetLocation}>
+          <CForm onSubmit={handleSetHomeCoordinates}>
             <CCol xs='auto'>
               <CFormInput
                 type='text'
-                id='location'
                 floatingClassName='mb-3'
                 floatingLabel='Enter Location'
                 defaultValue={defaultLocation}
-                onChange={handleLocationOrDestinationChange}
+                {...homeForm.register('location')}
               />
               <CButton
                 color='primary'
@@ -85,20 +66,20 @@ export default function Sidebar({
               </CButton>
             </CCol>
           </CForm>
-          <CCol className='py-4 border-top border-3'>
-            <CForm
-              onSubmit={submitRangeForm}
-            >
+
+          <CForm onSubmit={handleSetDestinationCoordinates}>
+            <CCol className='py-4 border-top border-3'>
               <CFormRange
-                id='maxRadius'
-                value={maxRadius}
-                onChange={handleRangeChange}
-                label={`Maximum Radius: ${maxRadius || defaultRadius} miles`}
+                {...destinationForm.register('radius')}
+                defaultValue={defaultRadius}
+                label={`Maximum Radius: ${radius} miles`}
                 min={0}
                 max={500}
                 step={5}
+                onChange={handleSetRadius}
               />
-              <CCol className='d-flex flex-row justify-content-between gap-2'>
+              {/* Range slider fidelity */}
+              <CCol className='d-flex flex-row justify-content-between gap-2 mb-4'>
                 <CButton
                   color='primary'
                   size='sm'
@@ -112,54 +93,26 @@ export default function Sidebar({
                   Fine
                 </CButton>
               </CCol>
-              <CCol>
+              <CCol xs='auto'>
+                <CFormInput
+                  type='text'
+                  {...destinationForm.register('location')}
+                  floatingClassName='mb-3'
+                  floatingLabel='Enter Destination'
+                  defaultValue={defaultDestination}
+                />
                 <CButton
                   color='primary'
-                  type='button'
-                  className='w-100'
-                  onClick={handleMaxRadiusChange}>
-                  Set Radius
+                  type='submit'
+                  className='w-100 mb-4'
+                >
+                  Set Destination
                 </CButton>
               </CCol>
-            </CForm>
-          </CCol>
-          <CForm
-            className='pt-4 border-top border-3'
-            onSubmit={handleSetDestination}>
-            <CCol xs='auto'>
-              <CFormInput
-                type='text'
-                id='destination'
-                floatingClassName='mb-3'
-                floatingLabel='Enter Destination'
-                onChange={handleLocationOrDestinationChange}
-                defaultValue={defaultDestination}
-              />
-              <CButton
-                color='primary'
-                type='submit'
-                className='w-100 mb-4'
-              >
-                Set Destination
-              </CButton>
             </CCol>
           </CForm>
-          {/* <CCol xs="auto">
-            <CButton
-              color="secondary"
-              type='button'
-              className='w-100'
-              disabled={!location || !destination}
-              onClick={handleRecalulate}
-            >
-              Recalculate
-            </CButton>
-          </CCol> */}
         </CNavItem>
-      </CSidebarNav>
-      <CSidebarHeader className='border-top'>
-        <CSidebarToggler />
-      </CSidebarHeader>
-    </CSidebar>
+      </CSidebarNav >
+    </CSidebar >
   );
 }

@@ -34,13 +34,3 @@ export const calculateDistance = async (homeCoordinates: google.maps.LatLngLiter
     return distance;
   }
 }
-
-export const checkIfWithinRadius = (
-  distanceInMeters: number,
-  radiusInMiles: number
-): boolean => {
-  ;
-  const radiusInMeters = convertMilesToMeters(radiusInMiles);
-
-  return distanceInMeters <= radiusInMeters;
-};

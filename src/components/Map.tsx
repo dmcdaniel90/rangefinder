@@ -6,7 +6,7 @@ import convertMilesToMeters from '../utils/functions';
 interface GoogleMapProps {
   homeCoordinates: google.maps.LatLngLiteral | null;
   destinationCoordinates: google.maps.LatLngLiteral | null;
-  maxRadiusInMiles: string;
+  radius: number;
 }
 
 const radiusOptions = {
@@ -25,9 +25,9 @@ const radiusOptions = {
 export const GoogleMap = ({
   homeCoordinates,
   destinationCoordinates,
-  maxRadiusInMiles,
+  radius,
 }: GoogleMapProps) => {
-  const radiusInMeters = convertMilesToMeters(maxRadiusInMiles);
+  const radiusInMeters = convertMilesToMeters(radius);
 
   return (
     <Map
