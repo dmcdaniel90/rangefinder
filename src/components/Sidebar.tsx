@@ -17,6 +17,7 @@ import {
   defaultDestination,
 } from '../utils/defaults.ts';
 import useLocationForm from '../hooks/useLocationForm.tsx';
+import { useState } from 'react';
 
 export interface SidebarProps {
   radius: number;
@@ -33,7 +34,8 @@ export default function Sidebar({
   handleSetDestinationCoordinates,
   form
 }: SidebarProps) {
-  //const [radiusStepFidelity]
+
+  const [radiusStepFidelity, setRadiusStepFidelity] = useState<1 | 10>(10);
 
   return (
     <CSidebar className='border-end'>
@@ -72,7 +74,7 @@ export default function Sidebar({
                 label={`Maximum Radius: ${radius} miles`}
                 min={0}
                 max={500}
-                step={5}
+                step={radiusStepFidelity}
                 onChange={handleSetRadius}
               />
               {/* Range slider fidelity */}
@@ -80,13 +82,15 @@ export default function Sidebar({
                 <CButton
                   color='primary'
                   size='sm'
-                  style={{ width: '50%' }}>
+                  style={{ width: '50%' }}
+                  onClick={() => setRadiusStepFidelity(10)}>
                   Coarse
                 </CButton>
                 <CButton
                   color='primary'
                   size='sm'
-                  style={{ width: '50%' }}>
+                  style={{ width: '50%' }}
+                  onClick={() => setRadiusStepFidelity(1)}>
                   Fine
                 </CButton>
               </CCol>
