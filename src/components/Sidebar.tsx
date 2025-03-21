@@ -16,8 +16,7 @@ import {
   defaultLocation,
   defaultDestination,
 } from '../utils/defaults.ts';
-import useHomeForm from '../hooks/useHomeForm.tsx';
-import useDestinationForm from '../hooks/useDestinationForm.tsx';
+import useLocationForm from '../hooks/useLocationForm.tsx';
 
 export interface SidebarProps {
   radius: number;
@@ -25,16 +24,14 @@ export interface SidebarProps {
   handleSetHomeCoordinates: (e: React.FormEvent<HTMLFormElement>) => void;
   handleSetDestinationCoordinates: (e: React.FormEvent<HTMLFormElement>) => void;
   distanceInMeters: number | null;
-  homeForm: ReturnType<typeof useHomeForm>['homeForm'];
-  destinationForm: ReturnType<typeof useDestinationForm>['destinationForm'];
+  form: ReturnType<typeof useLocationForm>['form'];
 }
 export default function Sidebar({
   radius,
   handleSetRadius,
   handleSetHomeCoordinates,
   handleSetDestinationCoordinates,
-  homeForm,
-  destinationForm,
+  form
 }: SidebarProps) {
   //const [radiusStepFidelity]
 
@@ -56,7 +53,7 @@ export default function Sidebar({
                 floatingClassName='mb-3'
                 floatingLabel='Enter Location'
                 defaultValue={defaultLocation}
-                {...homeForm.register('location')}
+                {...form.register('location')}
               />
               <CButton
                 color='primary'
@@ -70,7 +67,7 @@ export default function Sidebar({
           <CForm onSubmit={handleSetDestinationCoordinates}>
             <CCol className='py-4 border-top border-3'>
               <CFormRange
-                {...destinationForm.register('radius')}
+                {...form.register('radius')}
                 defaultValue={defaultRadius}
                 label={`Maximum Radius: ${radius} miles`}
                 min={0}
@@ -96,7 +93,7 @@ export default function Sidebar({
               <CCol xs='auto'>
                 <CFormInput
                   type='text'
-                  {...destinationForm.register('location')}
+                  {...form.register('location')}
                   floatingClassName='mb-3'
                   floatingLabel='Enter Destination'
                   defaultValue={defaultDestination}

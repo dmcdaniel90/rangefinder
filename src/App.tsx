@@ -7,8 +7,7 @@ import {
   defaultRadius,
   defaultCoordinates,
 } from './utils/defaults.ts';
-import useHomeForm from './hooks/useHomeForm.tsx';
-import useDestinationForm from './hooks/useDestinationForm.tsx';
+import useLocationForm from './hooks/useLocationForm.tsx';
 
 
 // Google Maps API key
@@ -57,8 +56,7 @@ export default function App() {
     setRadius(Number(e.target.value));
   };
 
-  const { homeForm, homeFormSchema } = useHomeForm();
-  const { destinationForm, destinationFormSchema } = useDestinationForm();
+  const { form, formSchema } = useLocationForm();
 
 
   /**
@@ -73,8 +71,8 @@ export default function App() {
   const handleSetHomeCoordinates = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const homeFormData = homeForm.getValues();
-    const result = homeFormSchema.safeParse(homeFormData);
+    const homeFormData = form.getValues();
+    const result = formSchema.safeParse(homeFormData);
 
     if (!result.success) {
       console.error(result.error);
@@ -113,8 +111,8 @@ export default function App() {
   const handleSetDestinationCoordinates = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const destinationFormData = destinationForm.getValues();
-    const result = destinationFormSchema.safeParse(destinationFormData);
+    const destinationFormData = form.getValues();
+    const result = formSchema.safeParse(destinationFormData);
 
     if (!result.success) {
       console.error(result.error);
@@ -154,8 +152,7 @@ export default function App() {
             handleSetHomeCoordinates={handleSetHomeCoordinates}
             handleSetDestinationCoordinates={handleSetDestinationCoordinates}
             distanceInMeters={distanceInMeters}
-            homeForm={homeForm}
-            destinationForm={destinationForm}
+            form={form}
           />
           <GoogleMap
             homeCoordinates={homeCoordinates}
