@@ -6,6 +6,7 @@ export default function useLocationForm() {
     const formSchema = z.object({
         location: z.string(),
         radius: z.string().optional(),
+        typedInRadius: z.string().optional(),
     })
 
     type LocationData = z.infer<typeof formSchema>

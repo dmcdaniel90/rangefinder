@@ -8,6 +8,7 @@ import {
   defaultCoordinates,
 } from './utils/defaults.ts';
 import useLocationForm from './hooks/useLocationForm.tsx';
+import { useDebounce } from './hooks/useDebounce.ts';
 
 
 // Google Maps API key
@@ -32,8 +33,11 @@ export default function App() {
   const [geoCodingLibrary, setGeoCodingLibrary] =
     useState<google.maps.GeocodingLibrary | null>();
 
-  // The radius of the map circle
-  const [radius, setRadius] = useState<number>(defaultRadius)
+  // Immediate radius value as updated by the slider
+  const [rawRadius, setRawRadius] = useState(defaultRadius);
+
+  // Debounced value that is passed down to the Map component
+  const debouncedRadius = useDebounce(rawRadius, 600);
 
   // The distance between the home and destination
   const [distanceInMeters, ,] = useState<number | null>(null);
@@ -53,11 +57,12 @@ export default function App() {
     });
   }, []);
 
-
-  const handleSetRadius = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRadius(e.target.valueAsNumber);
+  // Handle the radius change
+  const handleSetRadius = (radius: number) => {
+    setRawRadius(radius);
   };
 
+  // Get the home and destination location forms
   const { homeLocationForm, destinationLocationForm, formSchema } = useLocationForm();
 
 
@@ -72,6 +77,7 @@ export default function App() {
    */
 
   const handleSetHomeCoordinates = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log('handleSetHomeCoordinates called');
     e.preventDefault();
 
     const homeFormData = homeLocationForm.getValues();
@@ -112,6 +118,7 @@ export default function App() {
    * @param e The form event.
    */
   const handleSetDestinationCoordinates = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log('handleSetDestinationCoordinates called');
     e.preventDefault();
 
     const destinationFormData = destinationLocationForm.getValues();
@@ -143,8 +150,8 @@ export default function App() {
   };
 
   useEffect(() => {
-    console.log('App rendered')
-  }, [])
+    console.log('App Component re-rendered');
+  });
 
   return (
     <APIProvider
@@ -154,7 +161,7 @@ export default function App() {
       {!apiLoading && (
         <Layout>
           <Sidebar
-            radius={radius}
+            radius={rawRadius}
             handleSetRadius={handleSetRadius}
             handleSetHomeCoordinates={handleSetHomeCoordinates}
             handleSetDestinationCoordinates={handleSetDestinationCoordinates}
@@ -165,7 +172,7 @@ export default function App() {
           <GoogleMap
             homeCoordinates={homeCoordinates}
             destinationCoordinates={destinationCoordinates}
-            radius={radius}
+            radius={debouncedRadius}
           />
         </Layout>
       )}

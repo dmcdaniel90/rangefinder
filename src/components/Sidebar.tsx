@@ -18,10 +18,11 @@ import {
 } from '../utils/defaults.ts';
 import useLocationForm from '../hooks/useLocationForm.tsx';
 import { useState } from 'react';
+import { useDebounce } from '../hooks/useDebounce.ts';
 
 export interface SidebarProps {
   radius: number;
-  handleSetRadius: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSetRadius: (number: number) => void;
   handleSetHomeCoordinates: (e: React.FormEvent<HTMLFormElement>) => void;
   handleSetDestinationCoordinates: (e: React.FormEvent<HTMLFormElement>) => void;
   distanceInMeters: number | null;
@@ -38,6 +39,25 @@ export default function Sidebar({
 }: SidebarProps) {
 
   const [radiusStepFidelity, setRadiusStepFidelity] = useState<1 | 10>(10);
+  const [isEditingRadius, setIsEditingRadius] = useState(false);
+  const [editedRadius, setEditedRadius] = useState(radius);
+  const debouncedEditedRadius = useDebounce(editedRadius, 600);
+
+  const handleRadiusClick = () => {
+    setEditedRadius(radius);
+    setIsEditingRadius(true);
+  };
+
+  const handleRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = Number(e.target.value);
+    setEditedRadius(value);
+    handleSetRadius(value);
+  };
+
+  const handleInputBlur = () => {
+    setIsEditingRadius(false);
+    handleSetRadius(debouncedEditedRadius);
+  };
 
   return (
     <CSidebar className='border-end'>
@@ -70,14 +90,26 @@ export default function Sidebar({
 
           <CForm onSubmit={handleSetDestinationCoordinates}>
             <CCol className='py-4 border-top border-3'>
+              {!isEditingRadius ? (
+                <label onClick={handleRadiusClick}>
+                  Maximum Radius: {radius} miles
+                </label>
+              ) : (
+                <CFormInput
+                  type='number'
+                  value={editedRadius}
+                  onChange={handleRadiusChange} // Handles number input
+                  onBlur={handleInputBlur}
+                  autoFocus
+                />
+              )}
               <CFormRange
                 {...destinationLocationForm.register('radius')}
                 defaultValue={defaultRadius}
-                label={`Maximum Radius: ${radius} miles`}
                 min={0}
                 max={500}
                 step={radiusStepFidelity}
-                onChange={handleSetRadius}
+                onChange={(e) => handleSetRadius(Number(e.target.value))}
               />
               {/* Range slider fidelity */}
               <CCol className='d-flex flex-row justify-content-between gap-2 mb-4'>
