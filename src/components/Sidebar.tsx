@@ -25,14 +25,16 @@ export interface SidebarProps {
   handleSetHomeCoordinates: (e: React.FormEvent<HTMLFormElement>) => void;
   handleSetDestinationCoordinates: (e: React.FormEvent<HTMLFormElement>) => void;
   distanceInMeters: number | null;
-  form: ReturnType<typeof useLocationForm>['form'];
+  homeLocationForm: ReturnType<typeof useLocationForm>['homeLocationForm'];
+  destinationLocationForm: ReturnType<typeof useLocationForm>['destinationLocationForm'];
 }
 export default function Sidebar({
   radius,
   handleSetRadius,
   handleSetHomeCoordinates,
   handleSetDestinationCoordinates,
-  form
+  homeLocationForm,
+  destinationLocationForm,
 }: SidebarProps) {
 
   const [radiusStepFidelity, setRadiusStepFidelity] = useState<1 | 10>(10);
@@ -55,7 +57,7 @@ export default function Sidebar({
                 floatingClassName='mb-3'
                 floatingLabel='Enter Location'
                 defaultValue={defaultLocation}
-                {...form.register('location')}
+                {...homeLocationForm.register('location')}
               />
               <CButton
                 color='primary'
@@ -69,7 +71,7 @@ export default function Sidebar({
           <CForm onSubmit={handleSetDestinationCoordinates}>
             <CCol className='py-4 border-top border-3'>
               <CFormRange
-                {...form.register('radius')}
+                {...destinationLocationForm.register('radius')}
                 defaultValue={defaultRadius}
                 label={`Maximum Radius: ${radius} miles`}
                 min={0}
@@ -97,7 +99,7 @@ export default function Sidebar({
               <CCol xs='auto'>
                 <CFormInput
                   type='text'
-                  {...form.register('location')}
+                  {...destinationLocationForm.register('location')}
                   floatingClassName='mb-3'
                   floatingLabel='Enter Destination'
                   defaultValue={defaultDestination}

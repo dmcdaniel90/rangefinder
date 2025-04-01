@@ -10,12 +10,17 @@ export default function useLocationForm() {
 
     type LocationData = z.infer<typeof formSchema>
 
-    const form = useForm<LocationData>({
+    const homeLocationForm = useForm<LocationData>({
+        resolver: zodResolver(formSchema),
+    });
+
+    const destinationLocationForm = useForm<LocationData>({
         resolver: zodResolver(formSchema),
     });
 
     return {
-        form,
+        homeLocationForm,
+        destinationLocationForm,
         formSchema,
     }
 }

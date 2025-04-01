@@ -32,10 +32,11 @@ export default function App() {
   const [geoCodingLibrary, setGeoCodingLibrary] =
     useState<google.maps.GeocodingLibrary | null>();
 
+  // The radius of the map circle
   const [radius, setRadius] = useState<number>(defaultRadius)
 
   // The distance between the home and destination
-  const [distanceInMeters, setDistanceInMeters] = useState<number | null>(null);
+  const [distanceInMeters, ,] = useState<number | null>(null);
 
   // The coordinates of the location
   const [homeCoordinates, setHomeCoordinates] =
@@ -52,11 +53,13 @@ export default function App() {
     });
   }, []);
 
+
   const handleSetRadius = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRadius(Number(e.target.value));
+    setRadius(e.target.valueAsNumber);
   };
 
-  const { form, formSchema } = useLocationForm();
+  const { homeLocationForm, destinationLocationForm, formSchema } = useLocationForm();
+
 
 
   /**
@@ -71,7 +74,7 @@ export default function App() {
   const handleSetHomeCoordinates = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const homeFormData = form.getValues();
+    const homeFormData = homeLocationForm.getValues();
     const result = formSchema.safeParse(homeFormData);
 
     if (!result.success) {
@@ -111,7 +114,7 @@ export default function App() {
   const handleSetDestinationCoordinates = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const destinationFormData = form.getValues();
+    const destinationFormData = destinationLocationForm.getValues();
     const result = formSchema.safeParse(destinationFormData);
 
     if (!result.success) {
@@ -139,6 +142,10 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    console.log('App rendered')
+  }, [])
+
   return (
     <APIProvider
       apiKey={API_KEY}
@@ -152,7 +159,8 @@ export default function App() {
             handleSetHomeCoordinates={handleSetHomeCoordinates}
             handleSetDestinationCoordinates={handleSetDestinationCoordinates}
             distanceInMeters={distanceInMeters}
-            form={form}
+            homeLocationForm={homeLocationForm}
+            destinationLocationForm={destinationLocationForm}
           />
           <GoogleMap
             homeCoordinates={homeCoordinates}
